@@ -5,7 +5,7 @@ Status: Approved
 
 ## Purpose
 
-Magpii is a local healthcare discovery demo. A user pastes sensitive text, runs local detection, reviews highlighted identifiers, masks them with typed placeholders, and copies the cleaned text.
+Magpii is a local PII-removal tool. A user pastes sensitive text, runs local detection, reviews highlighted identifiers, masks them with typed placeholders, and copies the cleaned text.
 
 The extension never sends user text, detections, or model input outside the browser. It has no backend, accounts, telemetry, text persistence, or runtime network dependency.
 
@@ -31,7 +31,7 @@ type Detection = {
 
 `ORGANIZATION` and `DATE` are not part of this MVP. Rampart does not emit either label. Dates and organizations remain unchanged.
 
-The MVP also excludes diagnoses, medications, symptoms, lab values, measurements, aliases, reversible mappings, custom model training, extra structured detectors, and generic recognizer infrastructure.
+The MVP also excludes aliases, reversible mappings, custom model training, extra structured detectors, and generic recognizer infrastructure.
 
 ## Architecture
 
@@ -81,7 +81,7 @@ Map Rampart labels to Magpii types:
 - `GIVEN_NAME`, `SURNAME` -> `PERSON`
 - `STREET_NAME`, `BUILDING_NUMBER`, `SECONDARY_ADDRESS`, `CITY`, `STATE`, `ZIP_CODE` -> `ADDRESS`
 
-Mapping `CITY`, `STATE`, and `ZIP_CODE` to `ADDRESS` is Magpii's healthcare masking policy. Rampart's own default policy keeps coarse geography.
+Mapping `CITY`, `STATE`, and `ZIP_CODE` to `ADDRESS` is Magpii's PII masking policy. Rampart's own default policy keeps coarse geography.
 
 Name components may join across whitespace or a narrow Dutch surname-particle set such as `de`, `van`, `van de`, and `van der`.
 
@@ -146,10 +146,10 @@ Example:
 
 ```text
 Input:
-Jan de Vries, geboren op 14-03-1968, woont aan de Zijlweg 12 in Haarlem. HbA1c is 72 mmol/mol.
+Jan de Vries, geboren op 14-03-1968, woont aan de Zijlweg 12 in Haarlem. De vergadering blijft staan.
 
 Expected MVP output:
-[PERSON], geboren op 14-03-1968, woont aan de [ADDRESS]. HbA1c is 72 mmol/mol.
+[PERSON], geboren op 14-03-1968, woont aan de [ADDRESS]. De vergadering blijft staan.
 ```
 
 The date remains because date detection is outside this MVP. The exact address span depends on conservative Rampart boundaries; the extension may show adjacent `ADDRESS` highlights instead of widening across uncertain text.
@@ -160,7 +160,7 @@ The responsive side panel contains:
 
 - a Magpii header and visible `Local only` status
 - the statement `Your text stays in this browser.`
-- a healthcare-oriented input textarea
+- a general-purpose sensitive-text input area
 - a model-loading and detection status area
 - a primary `Detect` action
 - a read-only highlighted preview
@@ -207,9 +207,9 @@ Unit coverage includes:
 - malformed span rejection
 - exact highlighting segments
 - right-to-left typed-placeholder masking
-- preservation of clinical terms, values, and punctuation
+- preservation of unsupported values and punctuation
 
-Dutch healthcare fixtures cover every supported type: `PERSON`, `ADDRESS`, `EMAIL`, `PHONE`, `BSN`, `IBAN`, and `CREDIT_CARD`. Negative fixtures cover invalid checksums and clinical data that must remain.
+Dutch PII fixtures cover every supported type: `PERSON`, `ADDRESS`, `EMAIL`, `PHONE`, `BSN`, `IBAN`, and `CREDIT_CARD`. Negative fixtures cover invalid checksums and ordinary data that must remain.
 
 A real browser smoke test verifies that the packaged Rampart model loads with remote model access disabled and detects a Dutch person and address. An extension end-to-end test loads `dist/` unpacked and exercises `Detect -> highlight -> Mask -> Copy`.
 

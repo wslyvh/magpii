@@ -17,16 +17,16 @@ describe('core detection contract', () => {
 })
 
 describe('maskText', () => {
-  it('replaces detections with exact typed placeholders and preserves clinical text', () => {
+  it('replaces detections with exact typed placeholders and preserves other text', () => {
     const text =
-      'Jan de Vries, geboren op 14-03-1968, heeft HbA1c 72 mmol/mol en gebruikt metformine.'
+      'Jan de Vries, geboren op 14-03-1968, werkt aan project 72-A en gebruikt document 500.'
     const name = 'Jan de Vries'
     const detections: Detection[] = [
       { start: text.indexOf(name), end: text.indexOf(name) + name.length, type: 'PERSON', source: 'model' },
     ]
 
     expect(maskText(text, detections)).toBe(
-      '[PERSON], geboren op 14-03-1968, heeft HbA1c 72 mmol/mol en gebruikt metformine.',
+      '[PERSON], geboren op 14-03-1968, werkt aan project 72-A en gebruikt document 500.',
     )
   })
 
@@ -45,14 +45,14 @@ describe('maskText', () => {
 
 describe('toDisplaySegments', () => {
   it('splits untouched and detected text without losing punctuation', () => {
-    const text = 'Patiënt: Jan de Vries.'
+    const text = 'Contact: Jan de Vries.'
     const name = 'Jan de Vries'
     const detections: Detection[] = [
       { start: text.indexOf(name), end: text.indexOf(name) + name.length, type: 'PERSON', source: 'model' },
     ]
 
     expect(toDisplaySegments(text, detections)).toEqual([
-      { text: 'Patiënt: ' },
+      { text: 'Contact: ' },
       { text: 'Jan de Vries', detection: detections[0] },
       { text: '.' },
     ])

@@ -42,9 +42,9 @@ test.afterAll(async () => {
   if (userDataDir) await rm(userDataDir, { recursive: true, force: true })
 })
 
-test('loads bundled Rampart and masks Dutch healthcare identifiers', async () => {
+test('loads bundled Rampart and masks Dutch identifiers', async () => {
   const input =
-    'Jan de Vries, geboren op 14-03-1968, woont aan de Zijlweg 12 in Haarlem. HbA1c is 72 mmol/mol.'
+    'Jan de Vries, geboren op 14-03-1968, woont aan de Zijlweg 12 in Haarlem. De vergadering blijft staan.'
 
   await expect(page.locator('[data-testid="model-status"]')).toContainText('Ready locally')
   await expect(page.locator('h1')).toHaveText('Magpii')
@@ -56,12 +56,12 @@ test('loads bundled Rampart and masks Dutch healthcare identifiers', async () =>
   await expect(page.locator('mark[data-type="ADDRESS"] .entity-value')).toHaveText(
     'Zijlweg 12 in Haarlem',
   )
-  await expect(page.getByTestId('preview')).toContainText('HbA1c is 72 mmol/mol')
+  await expect(page.getByTestId('preview')).toContainText('De vergadering blijft staan')
   await expect(page.getByTestId('preview')).toContainText('14-03-1968')
 
   await page.getByTestId('mask').click()
   await expect(page.getByTestId('output')).toHaveValue(
-    '[PERSON], geboren op 14-03-1968, woont aan de [ADDRESS]. HbA1c is 72 mmol/mol.',
+    '[PERSON], geboren op 14-03-1968, woont aan de [ADDRESS]. De vergadering blijft staan.',
   )
   for (const button of await page.locator('.button:visible').all()) {
     const box = await button.boundingBox()
@@ -72,7 +72,7 @@ test('loads bundled Rampart and masks Dutch healthcare identifiers', async () =>
 
 test('runs all five structured detectors and copies the cleaned output', async () => {
   const input =
-    'Mail arts@example.nl, bel 06-12345678, BSN 111222333, IBAN NL91 ABNA 0417 1643 00, kaart 4111 1111 1111 1111. Metformine 500 mg.'
+    'Mail jan@example.nl, bel 06-12345678, BSN 111222333, IBAN NL91 ABNA 0417 1643 00, kaart 4111 1111 1111 1111. Document 500.'
 
   await page.getByTestId('input').fill(input)
   await page.getByTestId('detect').click()
@@ -87,7 +87,7 @@ test('runs all five structured detectors and copies the cleaned output', async (
 
   await page.getByTestId('mask').click()
   const expected =
-    'Mail [EMAIL], bel [PHONE], BSN [BSN], IBAN [IBAN], kaart [CREDIT_CARD]. Metformine 500 mg.'
+    'Mail [EMAIL], bel [PHONE], BSN [BSN], IBAN [IBAN], kaart [CREDIT_CARD]. Document 500.'
   await expect(page.getByTestId('output')).toHaveValue(expected)
   await page.getByTestId('copy').click()
   await expect(page.getByRole('status')).toContainText('copied')

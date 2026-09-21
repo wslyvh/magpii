@@ -23,7 +23,7 @@ export function mountMagpii(
           <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
           <div>
             <h1 class="wordmark">Magpii</h1>
-            <p class="product-line">Healthcare text cleaner</p>
+            <p class="product-line">Local PII cleaner</p>
           </div>
         </div>
         <div class="local-badge"><span aria-hidden="true"></span>Local only</div>
@@ -44,7 +44,7 @@ export function mountMagpii(
           data-testid="input"
           rows="8"
           spellcheck="false"
-          placeholder="Paste a clinical note, referral, or patient message…"
+          placeholder="Paste text containing personal information…"
         ></textarea>
         <button class="button button-primary" data-testid="detect" type="button" disabled>
           <span class="button-icon" aria-hidden="true">⌁</span>

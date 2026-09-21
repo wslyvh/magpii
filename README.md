@@ -1,6 +1,6 @@
 # Magpii Chrome extension
 
-Magpii is a fully local healthcare text-cleaning demo. Paste text, detect direct identifiers, review highlighted spans, mask them with typed placeholders, and copy the cleaned output.
+Magpii is a fully local PII-cleaning tool. Paste text, detect personal identifiers, review highlighted spans, mask them with typed placeholders, and copy the cleaned output.
 
 User text stays in the browser. The extension has no backend, runtime API calls, accounts, telemetry, or text persistence.
 
@@ -47,7 +47,7 @@ The bundled `nationaldesignstudio/rampart` Q4 ONNX model detects:
 - `GIVEN_NAME` and `SURNAME` -> `[PERSON]`
 - street, building, secondary-address, city, state, and postcode labels -> `[ADDRESS]`
 
-Magpii masks city, state, and postcode as healthcare policy even though Rampart keeps coarse geography by default. Inference uses tokenizer-aware chunks of at most 510 content tokens with a 64-token overlap. The fixed internal confidence threshold is `0.4`.
+Magpii treats city, state, and postcode as address information even though Rampart keeps coarse geography by default. Inference uses tokenizer-aware chunks of at most 510 content tokens with a 64-token overlap. The fixed internal confidence threshold is `0.4`.
 
 Rampart does not emit organization or date labels. `ORGANIZATION` and `DATE` are therefore outside this MVP and absent from the core detection type.
 
@@ -79,16 +79,16 @@ The manifest requests only the `sidePanel` permission and no host permissions.
 
 ## Test cases
 
-Dutch healthcare fixtures live in `src/test/healthcareCases.ts` and cover every supported type. They also assert that dates, medication, symptoms, lab values, doses, and measurements remain unchanged.
+Dutch PII fixtures live in `src/test/piiCases.ts` and cover every supported type. They also assert that unsupported and ordinary values remain unchanged.
 
 Example:
 
 ```text
 Input:
-Jan de Vries, geboren op 14-03-1968, woont aan de Zijlweg 12 in Haarlem. HbA1c is 72 mmol/mol.
+Jan de Vries, geboren op 14-03-1968, woont aan de Zijlweg 12 in Haarlem. De vergadering blijft staan.
 
 Output:
-[PERSON], geboren op 14-03-1968, woont aan de [ADDRESS]. HbA1c is 72 mmol/mol.
+[PERSON], geboren op 14-03-1968, woont aan de [ADDRESS]. De vergadering blijft staan.
 ```
 
 ## Development commands
