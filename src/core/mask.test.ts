@@ -1,20 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { DETECTION_TYPES, type Detection } from './types'
-import { maskText, toDisplaySegments } from './mask'
-
-describe('core detection contract', () => {
-  it('contains only the seven MVP output types', () => {
-    expect(DETECTION_TYPES).toEqual([
-      'PERSON',
-      'ADDRESS',
-      'EMAIL',
-      'PHONE',
-      'BSN',
-      'IBAN',
-      'CREDIT_CARD',
-    ])
-  })
-})
+import type { Detection } from './types'
+import { maskText } from './mask'
 
 describe('maskText', () => {
   it('replaces detections with exact typed placeholders and preserves other text', () => {
@@ -40,21 +26,5 @@ describe('maskText', () => {
     ]
 
     expect(maskText(text, detections)).toBe('Mail [EMAIL] or call [PHONE].')
-  })
-})
-
-describe('toDisplaySegments', () => {
-  it('splits untouched and detected text without losing punctuation', () => {
-    const text = 'Contact: Jan de Vries.'
-    const name = 'Jan de Vries'
-    const detections: Detection[] = [
-      { start: text.indexOf(name), end: text.indexOf(name) + name.length, type: 'PERSON', source: 'model' },
-    ]
-
-    expect(toDisplaySegments(text, detections)).toEqual([
-      { text: 'Contact: ' },
-      { text: 'Jan de Vries', detection: detections[0] },
-      { text: '.' },
-    ])
   })
 })

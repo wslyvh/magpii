@@ -1,22 +1,22 @@
 # Magpii Chrome extension
 
-Magpii is a fully local PII-cleaning tool. Paste text, detect personal identifiers, review highlighted spans, mask them with typed placeholders, and copy the cleaned output.
+Magpii is a fully local PII-cleaning tool. Paste text, clean personal identifiers, review what was found, and copy the cleaned text.
 
 User text stays in the browser. The extension has no backend, runtime API calls, accounts, telemetry, or text persistence.
 
 ## Load it in Chrome
 
 ```bash
-npm install
-npm run model:verify
-npm run build
+yarn
+yarn model:verify
+yarn build
 ```
 
 If the pinned model assets are not present, fetch them once during setup:
 
 ```bash
-npm run model:fetch
-npm run build
+yarn model:fetch
+yarn build
 ```
 
 Then:
@@ -35,10 +35,11 @@ The setup command may download development dependencies and the pinned model. Th
 input
   -> Rampart in a Web Worker + structured detectors in parallel
   -> validate and merge spans
-  -> highlight
-  -> mask with typed placeholders
+  -> found badges + masked output
   -> copy
 ```
+
+Cleaning is one click. The original text stays in the input. Found identifiers appear as badges, and the cleaned output uses typed placeholders.
 
 ### Contextual detection
 
@@ -67,9 +68,9 @@ Structured detections beat overlapping model detections. Between detections from
 
 ## Local-only architecture
 
-- `src/core/`: browser-agnostic TypeScript detection, merge, highlight, and masking logic
+- `src/core/`: browser-agnostic TypeScript detection, merge, and masking logic
 - `src/inference/`: Rampart policy, tokenizer-aware chunking, worker client, and local ONNX inference
-- `src/extension/`: Chrome side-panel shell and UI
+- `src/extension/`: page UI and the small Chrome action used to open it
 - `public/models/`: pinned Rampart model and tokenizer assets
 - `public/runtime/`: packaged ONNX Runtime Web WASM files
 
@@ -79,9 +80,7 @@ The manifest requests only the `sidePanel` permission and no host permissions.
 
 ## Test cases
 
-Dutch PII fixtures live in `src/test/piiCases.ts` and cover every supported type. They also assert that unsupported and ordinary values remain unchanged.
-
-Example:
+The Playwright extension test covers the Dutch demo sentence and the five structured detectors. Dates and ordinary reference values stay unchanged.
 
 ```text
 Input:
@@ -94,12 +93,27 @@ Output:
 ## Development commands
 
 ```bash
-npm test                 # Core and UI unit tests
-npm run typecheck        # TypeScript checks
-npm run model:verify     # Verify pinned Rampart checksums
-npm run build            # Produce dist/
-npx playwright install chromium
-npm run test:e2e         # Load dist/ as an unpacked extension and run the real model
+yarn test                # Core and UI unit tests
+yarn typecheck           # TypeScript checks
+yarn model:verify        # Verify pinned Rampart checksums
+yarn build               # Produce dist/
+yarn package             # Build dist/ and write store/magpii.zip
+yarn store-screenshot    # 1280x800 Chrome Web Store screenshot from dist/
+yarn playwright install chromium
+yarn test:e2e            # Load dist/ as an unpacked extension and run the real model
 ```
 
-Model provenance and third-party licenses are listed in `THIRD_PARTY_NOTICES.md`. The approved design is in `docs/superpowers/specs/2026-09-20-magpii-extension-mvp-design.md`.
+`store/magpii.zip` is what you upload to the Chrome Web Store. The zip has `manifest.json` at the root. Source maps are excluded.
+
+Listing assets live in `store/`: `icon-128.png`, `promo-440x280.png`, and `screenshot-1280x800.png`.
+
+Magpii is licensed under the MIT License.
+
+## Attribution
+
+Magpii bundles these third-party components:
+
+- **Rampart** (`nationaldesignstudio/rampart`, revision `b1993e4e68b082835b80ffc65acc03325ea2e501`). Copyright National Design Studio. [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). [Model source](https://huggingface.co/nationaldesignstudio/rampart).
+- **Transformers.js**. Copyright Hugging Face. Apache License 2.0. [Source](https://github.com/huggingface/transformers.js).
+- **ONNX Runtime**. Copyright Microsoft Corporation. MIT License. [Source](https://github.com/microsoft/onnxruntime).
+- **libphonenumber-js**. Copyright Nikolay Kuchumov. MIT License. [Source](https://github.com/catamphetamine/libphonenumber-js).

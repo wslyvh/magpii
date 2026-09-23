@@ -1,13 +1,15 @@
 import { fileURLToPath, URL } from 'node:url'
+import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
+  plugins: [tailwindcss()],
   build: {
     target: 'es2022',
     sourcemap: true,
     rollupOptions: {
       input: {
-        sidepanel: fileURLToPath(new URL('./sidepanel.html', import.meta.url)),
+        main: fileURLToPath(new URL('./index.html', import.meta.url)),
         background: fileURLToPath(new URL('./src/extension/background.ts', import.meta.url)),
       },
       output: {

@@ -41,15 +41,7 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
-describe('Magpii side panel', () => {
-  it('exposes the product name as the single level-one heading', () => {
-    const { root } = setup()
-
-    const headings = root.querySelectorAll('h1')
-    expect(headings).toHaveLength(1)
-    expect(headings[0]?.textContent).toBe('Magpii')
-  })
-
+describe('Magpii UI', () => {
   it('warms the local model while leaving text entry available', async () => {
     const { root, detector } = setup()
 
@@ -59,7 +51,7 @@ describe('Magpii side panel', () => {
     expect(root.querySelector('[data-testid="model-status"]')?.textContent).toContain('Ready locally')
   })
 
-  it('runs detection, renders typed highlights, then masks exact spans', async () => {
+  it('runs cleaning and shows identifier badges plus masked output', async () => {
     const text = 'Jan de Vries mailt arts@example.nl over HbA1c 72 mmol/mol.'
     const name = 'Jan de Vries'
     const { root } = setup([
@@ -74,14 +66,14 @@ describe('Magpii side panel', () => {
 
     const input = root.querySelector<HTMLTextAreaElement>('[data-testid="input"]')!
     enter(input, text)
-    click(root, 'detect')
+    click(root, 'clean')
     await flush()
 
-    const marks = [...root.querySelectorAll('mark[data-type]')]
-    expect(marks.map((mark) => mark.getAttribute('data-type'))).toEqual(['PERSON', 'EMAIL'])
-    expect(root.querySelector('[data-testid="preview"]')?.textContent).toContain('HbA1c 72 mmol/mol')
-
-    click(root, 'mask')
+    const badges = [...root.querySelectorAll('[data-testid="found"] [data-type]')]
+    expect(badges.map((badge) => badge.getAttribute('data-type'))).toEqual(['PERSON', 'EMAIL'])
+    expect(root.querySelector('[data-testid="found"]')?.textContent).toContain('Jan de Vries')
+    expect(root.querySelector('[data-testid="found"]')?.textContent).not.toContain('HbA1c 72 mmol/mol')
+    expect(root.querySelector('[data-testid="output-section"]')?.hasAttribute('hidden')).toBe(false)
     expect(root.querySelector<HTMLTextAreaElement>('[data-testid="output"]')?.value).toBe(
       '[PERSON] mailt [EMAIL] over HbA1c 72 mmol/mol.',
     )
@@ -96,12 +88,11 @@ describe('Magpii side panel', () => {
 
     const input = root.querySelector<HTMLTextAreaElement>('[data-testid="input"]')!
     enter(input, text)
-    click(root, 'detect')
+    click(root, 'clean')
     await flush()
-    click(root, 'mask')
     enter(input, `${text} gewijzigd`)
 
-    expect(root.querySelector('[data-testid="preview-section"]')?.hasAttribute('hidden')).toBe(true)
+    expect(root.querySelector('[data-testid="found-section"]')?.hasAttribute('hidden')).toBe(true)
     expect(root.querySelector('[data-testid="output-section"]')?.hasAttribute('hidden')).toBe(true)
   })
 
@@ -112,9 +103,8 @@ describe('Magpii side panel', () => {
 
     const input = root.querySelector<HTMLTextAreaElement>('[data-testid="input"]')!
     enter(input, text)
-    click(root, 'detect')
+    click(root, 'clean')
     await flush()
-    click(root, 'mask')
     click(root, 'copy')
     await flush()
 
@@ -137,10 +127,24 @@ describe('Magpii side panel', () => {
 
     const input = root.querySelector<HTMLTextAreaElement>('[data-testid="input"]')!
     enter(input, 'arts@example.nl')
-    click(root, 'detect')
+    click(root, 'clean')
     await flush()
 
     expect(root.querySelector('[role="alert"]')?.textContent).toContain('WASM failed')
-    expect(root.querySelector('[data-testid="preview-section"]')?.hasAttribute('hidden')).toBe(true)
+    expect(root.querySelector('[data-testid="found-section"]')?.hasAttribute('hidden')).toBe(true)
+  })
+
+  it('opens the about dialog from the help button', () => {
+    const { root } = setup()
+    const dialog = root.querySelector<HTMLDialogElement>('[data-testid="about-dialog"]')!
+
+    click(root, 'about')
+
+    expect(root.querySelector('.tagline')?.textContent).toBe('Keep personal data out of AI')
+    expect(dialog.open).toBe(true)
+    expect(dialog.textContent).toContain('ChatGPT')
+    expect(dialog.textContent).toContain('There are no Magpii servers')
+    expect(dialog.querySelector('a[href*="github.com/wslyvh/magpii-extension"]')).toBeTruthy()
+    expect(dialog.querySelector('a[href*="intheopen.cc/projects/magpii"]')).toBeTruthy()
   })
 })

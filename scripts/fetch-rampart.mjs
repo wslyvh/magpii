@@ -20,7 +20,7 @@ for (const [file, expectedHash] of Object.entries(lock.files)) {
   try {
     bytes = await readFile(target)
   } catch {
-    if (verifyOnly) throw new Error(`Missing model asset: ${file}. Run npm run model:fetch.`)
+    if (verifyOnly) throw new Error(`Missing model asset: ${file}. Run yarn model:fetch.`)
   }
 
   if (bytes && expectedHash && sha256(bytes) === expectedHash) {
@@ -29,7 +29,7 @@ for (const [file, expectedHash] of Object.entries(lock.files)) {
   }
 
   if (verifyOnly) {
-    throw new Error(`Model asset checksum mismatch: ${file}. Run npm run model:fetch.`)
+    throw new Error(`Model asset checksum mismatch: ${file}. Run yarn model:fetch.`)
   }
 
   const encodedFile = file.split('/').map(encodeURIComponent).join('/')

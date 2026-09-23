@@ -11,8 +11,10 @@
     "model:fetch": "node scripts/fetch-rampart.mjs",
     "model:verify": "node scripts/fetch-rampart.mjs --verify",
     "runtime:prepare": "node scripts/copy-ort-assets.mjs",
-    "build": "npm run model:verify && npm run runtime:prepare && vite build",
-    "test:e2e": "playwright test"
+    "build": "yarn model:verify && yarn runtime:prepare && vite build",
+    "test:e2e": "playwright test",
+    "package": "yarn build && node scripts/package-extension.mjs",
+    "store-screenshot": "node scripts/store-screenshot.mjs"
   },
   "dependencies": {
     "@huggingface/transformers": "4.3.0",
@@ -20,8 +22,11 @@
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
+    "@tailwindcss/vite": "^4.3.3",
     "@types/chrome": "0.3.0",
+    "daisyui": "^5.7.43",
     "jsdom": "^27.0.0",
+    "tailwindcss": "^4.3.3",
     "typescript": "7.0.2",
     "vite": "8.3.0",
     "vitest": "5.0.1"

@@ -29,6 +29,20 @@ describe('Rampart masking policy', () => {
     expect(result).toHaveLength(2)
   })
 
+  it('attaches an untagged given name and particle before a surname', () => {
+    const text = 'Jan de Vries, geboren op 14-03-1968'
+    const result = mapRampartSpans(text, [span(text, 'Vries', 'B-SURNAME')])
+
+    expect(text.slice(result[0]!.start, result[0]!.end)).toBe('Jan de Vries')
+  })
+
+  it('does not treat a sentence-initial function word as a given name', () => {
+    const text = 'Volgens de Vries is de afspraak verzet.'
+    const result = mapRampartSpans(text, [span(text, 'Vries', 'B-SURNAME')])
+
+    expect(text.slice(result[0]!.start, result[0]!.end)).toBe('de Vries')
+  })
+
   it('maps city and postcode to ADDRESS as Magpii policy', () => {
     const text = 'Haarlem 2011AA'
     const result = mapRampartSpans(text, [
@@ -54,7 +68,7 @@ describe('Rampart masking policy', () => {
     ])
   })
 
-  it('keeps address highlights separate across surrounding prose', () => {
+  it('keeps address spans separate across surrounding prose', () => {
     const text = 'Zijlweg 12 en patiënt verhuist later naar Haarlem'
     const result = mapRampartSpans(text, [
       span(text, 'Zijlweg', 'B-STREET_NAME'),

@@ -5,3 +5,4 @@ public/runtime/
 test-results/
 playwright-report/
 .DS_Store
+store/*.zip

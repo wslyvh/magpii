@@ -17,8 +17,3 @@ export type Detection = {
   type: DetectionType
   source: DetectionSource
 }
-
-export type DisplaySegment = {
-  text: string
-  detection?: Detection
-}

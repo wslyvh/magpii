@@ -2,6 +2,7 @@
 
 import { env, LogLevel, pipeline } from '@huggingface/transformers'
 import { detectWithRampart, type RampartRuntime } from './rampartEngine'
+import { loadBundledTokenizer, requireTokenizer } from './localTokenizer'
 import type { WorkerRequest, WorkerResponse } from './protocol'
 import type { ModelToken } from './tokenOffsets'
 
@@ -43,11 +44,16 @@ function configureLocalRuntime(): void {
 
 async function loadRuntime(): Promise<RampartRuntime> {
   configureLocalRuntime()
-  const loaded = (await pipeline('token-classification', 'rampart', {
-    dtype: 'q4',
-    device: 'wasm',
-    local_files_only: true,
-  })) as unknown as TokenClassifier
+  const modelRoot = new URL('rampart/', env.localModelPath).href
+  const [tokenizer, loaded] = await Promise.all([
+    loadBundledTokenizer(modelRoot),
+    pipeline('token-classification', 'rampart', {
+      dtype: 'q4',
+      device: 'wasm',
+      local_files_only: true,
+    }) as Promise<TokenClassifier>,
+  ])
+  loaded.tokenizer = requireTokenizer(tokenizer)
 
   return {
     tokenize: (text) => loaded.tokenizer.tokenize(text),

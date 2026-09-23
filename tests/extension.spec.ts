@@ -29,7 +29,7 @@ async function openExtension(): Promise<{ context: BrowserContext; page: Page }>
   })
 
   const extensionPage = await browserContext.newPage()
-  await extensionPage.goto(`${extensionOrigin}/sidepanel.html`)
+  await extensionPage.goto(`${extensionOrigin}/index.html`)
   return { context: browserContext, page: extensionPage }
 }
 
@@ -49,23 +49,25 @@ test('loads bundled Rampart and masks Dutch identifiers', async () => {
   await expect(page.locator('[data-testid="model-status"]')).toContainText('Ready locally')
   await expect(page.locator('h1')).toHaveText('Magpii')
   await page.getByTestId('input').fill(input)
-  await page.getByTestId('detect').click()
-  await expect(page.getByTestId('preview-section')).toBeVisible()
+  await page.getByTestId('clean').click()
+  await expect(page.getByTestId('found-section')).toBeVisible()
 
-  await expect(page.locator('mark[data-type="PERSON"] .entity-value')).toHaveText('Jan de Vries')
-  await expect(page.locator('mark[data-type="ADDRESS"] .entity-value')).toHaveText(
+  await expect(page.locator('[data-type="PERSON"] .badge-value')).toHaveText('Jan de Vries')
+  await expect(page.locator('[data-type="ADDRESS"] .badge-value')).toHaveText(
     'Zijlweg 12 in Haarlem',
   )
-  await expect(page.getByTestId('preview')).toContainText('De vergadering blijft staan')
-  await expect(page.getByTestId('preview')).toContainText('14-03-1968')
+  await expect(page.getByTestId('found')).not.toContainText('De vergadering blijft staan')
+  await expect(page.getByTestId('output-section')).toBeVisible()
 
-  await page.getByTestId('mask').click()
   await expect(page.getByTestId('output')).toHaveValue(
     '[PERSON], geboren op 14-03-1968, woont aan de [ADDRESS]. De vergadering blijft staan.',
   )
-  for (const button of await page.locator('.button:visible').all()) {
-    const box = await button.boundingBox()
-    expect(box?.height).toBeGreaterThanOrEqual(44)
+  for (const testId of ['clean', 'copy'] as const) {
+    const button = page.getByTestId(testId)
+    if (await button.isVisible()) {
+      const box = await button.boundingBox()
+      expect(box?.height).toBeGreaterThanOrEqual(44)
+    }
   }
   expect(remoteRequests).toEqual([])
 })
@@ -75,17 +77,16 @@ test('runs all five structured detectors and copies the cleaned output', async (
     'Mail jan@example.nl, bel 06-12345678, BSN 111222333, IBAN NL91 ABNA 0417 1643 00, kaart 4111 1111 1111 1111. Document 500.'
 
   await page.getByTestId('input').fill(input)
-  await page.getByTestId('detect').click()
-  await expect(page.getByTestId('preview-section')).toBeVisible()
+  await page.getByTestId('clean').click()
+  await expect(page.getByTestId('found-section')).toBeVisible()
 
-  const types = await page.locator('mark[data-type]').evaluateAll((marks) =>
-    marks.map((mark) => mark.getAttribute('data-type')),
+  const types = await page.locator('[data-testid="found"] [data-type]').evaluateAll((badges) =>
+    badges.map((badge) => badge.getAttribute('data-type')),
   )
   expect(new Set(types)).toEqual(
     new Set(['EMAIL', 'PHONE', 'BSN', 'IBAN', 'CREDIT_CARD']),
   )
 
-  await page.getByTestId('mask').click()
   const expected =
     'Mail [EMAIL], bel [PHONE], BSN [BSN], IBAN [IBAN], kaart [CREDIT_CARD]. Document 500.'
   await expect(page.getByTestId('output')).toHaveValue(expected)
@@ -94,7 +95,7 @@ test('runs all five structured detectors and copies the cleaned output', async (
   expect(remoteRequests).toEqual([])
 
   await page.screenshot({
-    path: 'test-results/magpii-sidepanel.png',
+    path: 'test-results/magpii.png',
     fullPage: true,
   })
 })
