@@ -1,0 +1,53 @@
+{
+  "name": "@intheopen/magpii",
+  "version": "0.1.3",
+  "description": "Local personal data detection and redaction, independent of the interface.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./browser": {
+      "types": "./dist/browser.d.ts",
+      "default": "./dist/browser.js"
+    },
+    "./rampart": {
+      "types": "./dist/rampart.d.ts",
+      "default": "./dist/rampart.js"
+    },
+    "./model-lock.json": "./assets/model-lock.json"
+  },
+  "files": [
+    "dist",
+    "assets",
+    "bin",
+    "NOTICE.txt"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm test && npm run build",
+    "prepack": "npm run build",
+    "test:browser": "npm run build && playwright test",
+    "model:fetch": "node scripts/fetch-rampart.mjs",
+    "model:verify": "node scripts/fetch-rampart.mjs --verify"
+  },
+  "dependencies": {
+    "libphonenumber-js": "1.13.13"
+  },
+  "devDependencies": {
+    "@huggingface/transformers": "4.3.0",
+    "@types/node": "^22",
+    "typescript": "^5.9.3",
+    "vitest": "5.0.1",
+    "esbuild": "^0.27.2",
+    "@playwright/test": "1.63.0"
+  },
+  "bin": {
+    "magpii-assets": "./bin/magpii-assets.mjs"
+  }
+}

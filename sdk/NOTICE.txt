@@ -1,0 +1,17 @@
+Magpii SDK
+Copyright (c) 2026 wslyvh. MIT License; see LICENSE.
+
+The detection engine was extracted from wslyvh/magpii-extension,
+revision cb741cd80be0020863426d332d77531f387c14b3.
+https://github.com/wslyvh/magpii-extension
+
+Optional browser inference uses Rampart by National Design Studio,
+nationaldesignstudio/rampart, revision b1993e4e68b082835b80ffc65acc03325ea2e501.
+Licensed under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/
+Model source: https://huggingface.co/nationaldesignstudio/rampart
+Magpii adapts Rampart's token labels into personal-data spans, including
+city, state, and postcode as address information. Model weights are unchanged.
+
+Transformers.js: Hugging Face, Apache-2.0.
+ONNX Runtime: Microsoft Corporation, MIT.
+libphonenumber-js: Nikolay Kuchumov, MIT.

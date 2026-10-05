@@ -1,34 +1,29 @@
 {
-  "name": "magpii-extension",
-  "version": "0.1.0",
+  "name": "magpii",
+  "version": "0.0.0",
   "private": true,
   "type": "module",
+  "license": "MIT",
+  "workspaces": [
+    "sdk",
+    "extension"
+  ],
   "scripts": {
-    "dev": "vite",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "typecheck": "tsc --noEmit",
-    "model:fetch": "node scripts/fetch-rampart.mjs",
-    "model:verify": "node scripts/fetch-rampart.mjs --verify",
-    "runtime:prepare": "node scripts/copy-ort-assets.mjs",
-    "build": "yarn model:verify && yarn runtime:prepare && vite build",
-    "test:e2e": "playwright test",
-    "package": "yarn build && node scripts/package-extension.mjs",
-    "store-screenshot": "node scripts/store-screenshot.mjs"
+    "build:sdk": "npm run build --workspace=@intheopen/magpii",
+    "build": "npm run build:sdk && npm run build --workspace=magpii-extension",
+    "dev:extension": "npm run build:sdk && npm run dev --workspace=magpii-extension",
+    "typecheck": "npm run build:sdk && npm run typecheck --workspaces",
+    "test": "npm run build:sdk && npm run test --workspaces",
+    "check": "npm run build:sdk && npm run typecheck --workspaces && npm run test --workspaces && npm run build --workspace=magpii-extension",
+    "test:browser": "npm run test:browser --workspace=@intheopen/magpii && npm run build --workspace=magpii-extension && npm run test:e2e --workspace=magpii-extension",
+    "pack:sdk": "npm pack --workspace=@intheopen/magpii",
+    "package:extension": "npm run build:sdk && npm run package --workspace=magpii-extension",
+    "store-screenshot": "npm run build && npm run store-screenshot --workspace=magpii-extension",
+    "model:fetch": "npm run model:fetch --workspace=@intheopen/magpii",
+    "model:verify": "npm run model:verify --workspace=@intheopen/magpii"
   },
-  "dependencies": {
-    "@huggingface/transformers": "4.3.0",
-    "libphonenumber-js": "1.13.13"
-  },
-  "devDependencies": {
-    "@playwright/test": "1.63.0",
-    "@tailwindcss/vite": "^4.3.3",
-    "@types/chrome": "0.3.0",
-    "daisyui": "^5.7.43",
-    "jsdom": "^27.0.0",
-    "tailwindcss": "^4.3.3",
-    "typescript": "7.0.2",
-    "vite": "8.3.0",
-    "vitest": "5.0.1"
+  "engines": {
+    "node": ">=24",
+    "npm": ">=11"
   }
 }

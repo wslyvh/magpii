@@ -1,8 +1,10 @@
 node_modules/
 dist/
-public/runtime/
-.hermes/
 test-results/
 playwright-report/
+.hermes/
 .DS_Store
-store/*.zip
+*.tgz
+/sdk/assets/browser/
+/extension/public/magpii/
+/extension/store/*.zip
