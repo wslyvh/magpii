@@ -17,11 +17,16 @@ export function createMaskerTokenizer(json: object, config: object) {
       const encoding = tokenizer.encode(text, { add_special_tokens: false });
       let normalized = "";
       const starts: number[] = [], ends: number[] = [];
-      // Normalize complete graphemes, retaining a map back to original UTF-16.
-      for (const { segment, index } of segmenter.segment(text)) {
+      // The pinned sequence strips source whitespace before normalizing and
+      // collapsing spaces. Formatting marks can become boundary spaces during
+      // normalization; retain them and their original UTF-16 positions.
+      const stripped = text.trim();
+      const sourceStart = text.length - text.trimStart().length;
+      for (const { segment, index: strippedIndex } of segmenter.segment(stripped)) {
+        const index = sourceStart + strippedIndex;
         for (const character of normalizer.normalize(segment)) {
-          if (/\s/u.test(character)) {
-            if (!normalized || normalized.endsWith(" ")) continue;
+          if (character === " ") {
+            if (normalized.endsWith(" ")) continue;
             normalized += " "; starts.push(index); ends.push(index + segment.length);
           } else {
             normalized += character;
@@ -29,7 +34,6 @@ export function createMaskerTokenizer(json: object, config: object) {
           }
         }
       }
-      if (normalized.endsWith(" ")) { normalized = normalized.slice(0, -1); starts.pop(); ends.pop(); }
       if (normalized !== tokenizer.normalizer?.normalize(text)) throw new Error("Tokenizer normalization could not be aligned.");
       const offsets: [number, number][] = [];
       let cursor = 0;

@@ -48,8 +48,6 @@ await mkdir(resolve(output, "runtime"), { recursive: true });
 for (const file of [
   "ort-wasm-simd-threaded.mjs",
   "ort-wasm-simd-threaded.wasm",
-  "ort-wasm-simd-threaded.asyncify.mjs",
-  "ort-wasm-simd-threaded.asyncify.wasm",
 ]) {
   await copyFile(
     resolve(runtimeSource, file),

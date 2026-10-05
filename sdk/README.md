@@ -65,7 +65,7 @@ The pinned Tokenizers.js implementation tokenizes once. Long text uses overlappi
 
 ### Upgrading from 0.1
 
-Names and addresses now retain components rather than becoming only `PERSON` and `ADDRESS`. Update exhaustive entity labels and use `DEFAULT_REDACTION_TYPES` for initial review selections. `detectText` retains overlapping candidates until selection. The browser bundle ships Masker Mini instead of Rampart. The old `./rampart` inference entry point has been replaced by `./inference`; `RampartClient` remains a compatibility alias for `BrowserDetectorClient`.
+Names and addresses now retain components rather than becoming only `PERSON` and `ADDRESS`. Update exhaustive entity labels and use `DEFAULT_REDACTION_TYPES` for initial review selections. `detectText` retains overlapping candidates until selection. The browser bundle ships Masker Mini instead of Rampart. The old `./rampart` inference entry point has been replaced by `./inference`. Use `createBrowserDetector` or `BrowserDetectorClient` for browser integration.
 
 ## Development
 

@@ -7,7 +7,12 @@ Local personal data detection and redaction.
 - `sdk/` — detection, masking, models, browser runtime, and engine tests. Package: `@intheopen/magpii`.
 - `extension/` — Chrome side panel, review interface, and extension tests.
 
-Both use npm workspaces and one lockfile. The SDK is the shared API for detection and redaction. Interfaces own their input, review, clipboard, and platform integration. The extension imports the SDK directly from the workspace.
+Both use npm workspaces and one lockfile. The SDK owns the pinned model, structured detectors, entity contract, masking, runtime assets, and package. Interfaces own their input, review, clipboard, and platform integration. The extension imports the SDK directly from the workspace; other consumers install the compiled SDK archive.
+
+## Product versions
+
+- **0.1:** Rampart. Historical code remains in Git history.
+- **0.2:** Masker Mini. Current SDK and extension.
 
 ## Getting started
 

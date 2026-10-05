@@ -34,4 +34,21 @@ describe("Masker original-text alignment", () => {
     }
     expect(tokenizer.encode("  ")).toEqual({ ids: [], offsets: [] });
   });
+
+  it.each(["\u200b", "\u200c", "\u200e", "▁", "\ufffd"])("aligns formatting mark %j at source boundaries", (mark) => {
+    expect(tokenizer.encode(`${mark}Jan`)).toEqual({ ids: [1575], offsets: [[0, 4]] });
+    // ZWNJ belongs to the preceding grapheme; both token offsets retain it.
+    const trailingNameEnd = mark === "\u200c" ? 4 : 3;
+    const trailingSpaceStart = mark === "\u200c" ? 2 : 3;
+    expect(tokenizer.encode(`Jan${mark}`)).toEqual({ ids: [1575, 260], offsets: [[0, trailingNameEnd], [trailingSpaceStart, 4]] });
+    expect(tokenizer.encode(` \t${mark}Jan${mark} \n`)).toEqual({ ids: [1575, 260], offsets: [[2, 3 + trailingNameEnd], [3 + trailingSpaceStart, 7]] });
+    expect(tokenizer.encode(mark)).toEqual({ ids: [260], offsets: [[0, 1]] });
+  });
+
+  it("aligns boundary formatting marks around literal special tokens", () => {
+    expect(tokenizer.encode("\u200b[MASK] Jan\u200e")).toEqual({
+      ids: [260, 63895, 1575, 260],
+      offsets: [[0, 1], [1, 7], [7, 11], [11, 12]],
+    });
+  });
 });

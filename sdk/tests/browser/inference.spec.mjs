@@ -87,3 +87,30 @@ test("long text and Unicode retain original offsets beyond the first model windo
   expect(names.map(d => text.slice(d.start, d.end))).toEqual(["Jan", "de Vries"]);
   expect(result.redactedText).not.toContain("Jan de Vries");
 });
+
+test("boundary formatting marks do not prevent structured redaction in the real worker", async ({ page }) => {
+  await page.goto("/");
+  await page.waitForFunction(() => Boolean(window.magpii));
+  const results = await page.evaluate(async () => {
+    const detector = window.magpii.createBrowserDetector({ assetBaseUrl: "/magpii/" });
+    try {
+      const results = [];
+      for (const input of ["\u200bEmail alex@example.com.", "Email alex@example.com.\u200e", " \t\u200cEmail alex@example.com.\u200b \n", "\u200b"]) {
+        results.push({ input, ...(await window.magpii.redactText(input, { detector })) });
+      }
+      return results;
+    } finally {
+      detector.dispose();
+    }
+  });
+  expect(results.map(result => result.redactedText)).toEqual([
+    "\u200bEmail [EMAIL].",
+    "Email [EMAIL].\u200e",
+    " \t\u200cEmail [EMAIL].\u200b \n",
+    "\u200b",
+  ]);
+  for (const result of results.slice(0, 3)) {
+    const email = result.detections.find(d => d.type === "EMAIL");
+    expect(result.input.slice(email.start, email.end)).toBe("alex@example.com");
+  }
+});
