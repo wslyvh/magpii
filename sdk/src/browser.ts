@@ -1,6 +1,7 @@
 export {
   createBrowserDetector,
-  RampartClient,
+  BrowserDetectorClient,
+  BrowserDetectorClient as RampartClient,
   type BrowserDetectorOptions,
   type WorkerLike,
-} from "./inference/rampartClient.js";
+} from "./inference/browserClient.js";

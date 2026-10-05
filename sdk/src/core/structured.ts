@@ -161,5 +161,22 @@ export function detectStructured(text: string): Detection[] {
     ...detectBsns(text),
     ...detectIbans(text),
     ...detectCreditCards(text),
+    ...detectUrls(text),
   ].sort((a, b) => a.start - b.start || b.end - a.end);
+}
+
+
+export function detectUrls(text: string): Detection[] {
+  const detections: Detection[] = [];
+  for (const match of text.matchAll(/\bhttps?:\/\/[^\s<>"']+/giu)) {
+    let value = match[0].replace(/[.,;!?]+$/, "");
+    for (const [open, close] of [["(", ")"], ["[", "]"], ["{", "}"]]) {
+      while (value.endsWith(close) && value.split(close).length > value.split(open).length) value = value.slice(0, -1);
+    }
+    try {
+      const url = new URL(value);
+      if (url.hostname) detections.push(matchDetection(match.index, match.index + value.length, "URL"));
+    } catch { /* Not a valid URL. */ }
+  }
+  return detections;
 }

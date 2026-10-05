@@ -13,7 +13,7 @@ const lock = JSON.parse(
 );
 
 for (const [file, checksum] of Object.entries(lock.files)) {
-  const bytes = await readFile(resolve(root, "models/rampart", file));
+  const bytes = await readFile(resolve(root, "models/masker-mini", file));
   if (createHash("sha256").update(bytes).digest("hex") !== checksum) {
     throw new Error(`Model checksum mismatch: ${file}`);
   }
@@ -31,8 +31,8 @@ await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 await build({
   absWorkingDir: root,
-  entryPoints: ["src/inference/rampart.worker.ts"],
-  outfile: resolve(output, "worker.js"),
+  entryPoints: ["src/inference/masker.worker.ts"],
+  outfile: resolve(output, "worker-v2.js"),
   bundle: true,
   platform: "browser",
   format: "esm",
@@ -40,7 +40,7 @@ await build({
   minify: true,
   legalComments: "eof",
 });
-await cp(resolve(root, "models/rampart"), resolve(output, "models/rampart"), {
+await cp(resolve(root, "models/masker-mini"), resolve(output, "models/masker-mini"), {
   recursive: true,
 });
 const runtimeSource = dirname(require.resolve("onnxruntime-web"));

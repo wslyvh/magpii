@@ -2,9 +2,11 @@
   "manifest_version": 3,
   "name": "Magpii",
   "description": "Magpii detects and masks personal information before you use sensitive text with ChatGPT, Claude, or other AI tools.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "minimum_chrome_version": "116",
-  "permissions": ["sidePanel"],
+  "permissions": [
+    "sidePanel"
+  ],
   "icons": {
     "128": "icons/icon-128.png"
   },

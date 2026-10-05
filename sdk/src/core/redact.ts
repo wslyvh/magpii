@@ -1,24 +1,12 @@
 import { detectText, type ContextualDetector } from "./detect.js";
 import { maskText } from "./mask.js";
-import type { Detection } from "./types.js";
+import { DEFAULT_REDACTION_TYPES, type Detection, type DetectionType } from "./types.js";
 
-export type RedactOptions = {
-  detector?: ContextualDetector;
-};
+export type RedactOptions = { detector?: ContextualDetector; redactionTypes?: readonly DetectionType[] };
+export type RedactResult = { redactedText: string; detections: Detection[] };
 
-export type RedactResult = {
-  redactedText: string;
-  detections: Detection[];
-};
-
-export async function redactText(
-  text: string,
-  options: RedactOptions = {},
-): Promise<RedactResult> {
+export async function redactText(text: string, options: RedactOptions = {}): Promise<RedactResult> {
   const detections = await detectText(text, options.detector);
-
-  return {
-    redactedText: maskText(text, detections),
-    detections,
-  };
+  const selected = options.redactionTypes ?? DEFAULT_REDACTION_TYPES;
+  return { detections, redactedText: maskText(text, detections.filter(d => selected.includes(d.type))) };
 }

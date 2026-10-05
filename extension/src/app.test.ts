@@ -2,7 +2,7 @@
 
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import type { Detection } from '@intheopen/magpii'
-import { RampartClient, type WorkerLike } from '@intheopen/magpii/browser'
+import { BrowserDetectorClient, type WorkerLike } from '@intheopen/magpii/browser'
 import { mountMagpii, type UiDetector } from './app'
 
 // jsdom does not implement the browser modal dialog methods.
@@ -159,7 +159,7 @@ describe('Magpii UI', () => {
       removeEventListener: vi.fn(),
       terminate: vi.fn(),
     }
-    const failed = new RampartClient(worker)
+    const failed = new BrowserDetectorClient(worker)
     const recovered: UiDetector = {
       warmup: vi.fn(async () => undefined),
       detect: vi.fn(async () => []),
@@ -226,7 +226,7 @@ describe('Magpii UI', () => {
     expect(dialog.open).toBe(true)
     expect(dialog.textContent).toContain('ChatGPT')
     expect(dialog.textContent).toContain('There are no Magpii servers')
-    expect(dialog.querySelector('a[href*="github.com/wslyvh/magpii-extension"]')).toBeTruthy()
+    expect(dialog.querySelector('a[href*="github.com/wslyvh/magpii"]')).toBeTruthy()
     expect(dialog.querySelector('a[href*="intheopen.cc/projects/magpii"]')).toBeTruthy()
   })
 })

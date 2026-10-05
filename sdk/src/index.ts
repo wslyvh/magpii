@@ -13,6 +13,9 @@ export { mergeDetections } from "./core/spans.js";
 export { detectStructured } from "./core/structured.js";
 export {
   DETECTION_TYPES,
+  CONTEXTUAL_DETECTION_TYPES,
+  DEFAULT_REDACTION_TYPES,
+  canonicalEntityType,
   type Detection,
   type DetectionType,
   type DetectionSource,

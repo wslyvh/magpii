@@ -23,7 +23,9 @@ describe("mergeDetections", () => {
       { start: 5, end: 14, type: "PHONE", source: "structured" },
     ];
 
-    expect(mergeDetections(candidates, 20)).toEqual([candidates[1]]);
+    expect(mergeDetections(candidates, 20)).toEqual([
+      { ...candidates[0], end: 5 }, candidates[1], { ...candidates[0], start: 14 },
+    ]);
   });
 
   it("keeps the longer overlapping span when sources match", () => {

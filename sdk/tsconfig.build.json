@@ -6,10 +6,11 @@
     "rootDir": "src",
     "outDir": "dist"
   },
-  "include": ["src/**/*.ts"],
+  "include": [
+    "src/**/*.ts"
+  ],
   "exclude": [
     "src/**/*.test.ts",
-    "src/inference/rampart.worker.ts",
-    "src/inference/localTokenizer.ts"
+    "src/inference/masker.worker.ts"
   ]
 }

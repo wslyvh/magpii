@@ -1,6 +1,6 @@
-import { detectText, maskText, type ContextualDetector, type Detection } from '@intheopen/magpii'
+import { DEFAULT_REDACTION_TYPES, detectText, maskText, mergeDetections, type ContextualDetector, type Detection } from '@intheopen/magpii'
 
-const REPO_URL = 'https://github.com/wslyvh/magpii-extension'
+const REPO_URL = 'https://github.com/wslyvh/magpii'
 const PRIVACY_URL = 'https://www.intheopen.cc/projects/magpii#privacy'
 
 export type UiDetector = ContextualDetector & {
@@ -203,14 +203,15 @@ export function mountMagpii(
         const result = await detectText(text, currentDetector)
         if (destroyed || version !== inputVersion) return
 
-        renderBadges(text, result)
-        output.value = maskText(text, result)
+        const selected = mergeDetections(result.filter(d => DEFAULT_REDACTION_TYPES.includes(d.type)), text.length)
+        renderBadges(text, selected)
+        output.value = maskText(text, selected)
         foundSection.hidden = false
         outputSection.hidden = false
-        detectionCount.textContent = `${result.length} found`
+        detectionCount.textContent = `${selected.length} found`
         modelStatus.textContent = 'Ready locally'
-        liveStatus.textContent = result.length
-          ? `${result.length} identifiers found and masked.`
+        liveStatus.textContent = selected.length
+          ? `${selected.length} identifiers found and masked.`
           : 'No supported identifiers found.'
       } catch (error) {
         if (currentDetector) releaseDetector(currentDetector)

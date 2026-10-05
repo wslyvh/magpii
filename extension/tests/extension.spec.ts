@@ -42,7 +42,7 @@ test.afterAll(async () => {
   if (userDataDir) await rm(userDataDir, { recursive: true, force: true })
 })
 
-test('loads bundled Rampart and masks Dutch identifiers', async () => {
+test('loads bundled Masker Mini and masks Dutch identifiers', async () => {
   const input =
     'Jan de Vries, geboren op 14-03-1968, woont aan de Zijlweg 12 in Haarlem. De vergadering blijft staan.'
 
@@ -52,15 +52,17 @@ test('loads bundled Rampart and masks Dutch identifiers', async () => {
   await page.getByTestId('clean').click()
   await expect(page.getByTestId('found-section')).toBeVisible()
 
-  await expect(page.locator('[data-type="PERSON"] .badge-value')).toHaveText('Jan de Vries')
-  await expect(page.locator('[data-type="ADDRESS"] .badge-value')).toHaveText(
-    'Zijlweg 12 in Haarlem',
-  )
+  await expect(page.locator('[data-type="GIVEN_NAME"] .badge-value')).toHaveText('Jan')
+  await expect(page.locator('[data-type="SURNAME"] .badge-value')).toHaveText('de Vries')
+  await expect(page.locator('[data-type="STREET"] .badge-value')).toHaveText('Zijlweg')
+  await expect(page.locator('[data-type="BUILDING_NUMBER"] .badge-value')).toHaveText('12')
+  await expect(page.locator('[data-type="CITY"] .badge-value')).toHaveText('Haarlem')
+  await expect(page.locator('[data-type="DATE"]')).toHaveCount(0)
   await expect(page.getByTestId('found')).not.toContainText('De vergadering blijft staan')
   await expect(page.getByTestId('output-section')).toBeVisible()
 
   await expect(page.getByTestId('output')).toHaveValue(
-    '[PERSON], geboren op 14-03-1968, woont aan de [ADDRESS]. De vergadering blijft staan.',
+    '[GIVEN_NAME] [SURNAME], geboren op 14-03-1968, woont aan de [STREET] [BUILDING_NUMBER] in [CITY]. De vergadering blijft staan.',
   )
   for (const testId of ['clean', 'copy'] as const) {
     const button = page.getByTestId(testId)

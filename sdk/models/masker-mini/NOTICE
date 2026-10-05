@@ -1,0 +1,11 @@
+masker-mini
+Copyright 2026 Offchain Studio
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+It is a derivative of mDeBERTa-v3 (microsoft/mdeberta-v3-base, MIT License,
+Copyright (c) Microsoft Corporation), whose pruned tokenizer it uses, and of
+Multilingual-MiniLM (microsoft/Multilingual-MiniLM-L12-H384, MIT License,
+Copyright (c) Microsoft Corporation), whose weights initialise it. It was trained on third-party datasets
+listed in README.md under "Credits & attribution", which keep their own
+licenses (CC-BY-4.0, CC-BY-SA-4.0, CC-BY-3.0, MIT).

@@ -17,7 +17,7 @@ async function redact(page, text, assetBaseUrl = "/magpii/") {
   );
 }
 
-test("the compiled browser bundle redacts all categories without uploading text", async ({
+test("the compiled browser bundle preserves components and opt-in dates without uploading text", async ({
   page,
   context,
 }) => {
@@ -37,12 +37,11 @@ test("the compiled browser bundle redacts all categories without uploading text"
   await page.waitForFunction(() => Boolean(window.magpii));
   const result = await redact(page, input, "magpii/");
   expect(result.redactedText).toBe(
-    "[PERSON], geboren op 14-03-1968, woont aan de [ADDRESS]. Mail [EMAIL], bel [PHONE], BSN [BSN], IBAN [IBAN], kaart [CREDIT_CARD]. De vergadering blijft staan.",
+    "[GIVEN_NAME] [SURNAME], geboren op 14-03-1968, woont aan de [STREET] [BUILDING_NUMBER] in [CITY]. Mail [EMAIL], bel [PHONE], BSN [BSN], IBAN [IBAN], kaart [CREDIT_CARD]. De vergadering blijft staan.",
   );
   expect(new Set(result.detections.map(({ type }) => type))).toEqual(
     new Set([
-      "PERSON",
-      "ADDRESS",
+      "GIVEN_NAME", "SURNAME", "STREET", "BUILDING_NUMBER", "CITY", "DATE", "GOVERNMENT_ID",
       "EMAIL",
       "PHONE",
       "BSN",
@@ -74,4 +73,17 @@ test("missing assets reject detection, and a new detector can retry", async ({
   await expect(redact(page, "jan@example.nl")).rejects.toThrow();
   await page.unroute("**/magpii/models/**");
   expect((await redact(page, "jan@example.nl")).redactedText).toBe("[EMAIL]");
+});
+
+
+test("long text and Unicode retain original offsets beyond the first model window", async ({ page }) => {
+  await page.goto("/");
+  await page.waitForFunction(() => Boolean(window.magpii));
+  const text = "😀 " + "The meeting notes are ready. ".repeat(120) + "Jan de Vries lives in Haarlem. Email jan@example.nl.";
+  const result = await redact(page, text);
+  expect(result.redactedText.startsWith("😀 The meeting notes")).toBe(true);
+  expect(result.redactedText).toContain("[EMAIL]");
+  const names = result.detections.filter(d => d.type === "GIVEN_NAME" || d.type === "SURNAME");
+  expect(names.map(d => text.slice(d.start, d.end))).toEqual(["Jan", "de Vries"]);
+  expect(result.redactedText).not.toContain("Jan de Vries");
 });
