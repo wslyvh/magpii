@@ -1,4 +1,4 @@
-import { canonicalEntityType, CONTEXTUAL_DETECTION_TYPES, type Detection } from "../core/types.js";
+import { canonicalEntityType, type Detection } from "../core/types.js";
 
 export type ModelSpan = { start: number; end: number; type: string; source: "model" };
 
@@ -39,7 +39,7 @@ export function contextualSpans(text: string, spans: readonly ModelSpan[]): Dete
   const unique = new Map<string, Detection>();
   for (const span of spans) {
     const type = canonicalEntityType(span.type);
-    if (!type || !CONTEXTUAL_DETECTION_TYPES.includes(type)) continue;
+    if (!type) continue;
     let { start, end } = span;
     while (start < end && /\s/u.test(text[start])) start++;
     while (end > start && /\s/u.test(text[end - 1])) end--;

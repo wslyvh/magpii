@@ -8,6 +8,9 @@ import type {
 
 export type BrowserDetectorOptions = {
   assetBaseUrl: string;
+  model?: "mini" | "full";
+  fullModelBaseUrl?: string;
+  onProgress?: (progress: { loaded: number; total: number }) => void;
 };
 
 export type WorkerLike = {
@@ -45,6 +48,7 @@ export class BrowserDetectorClient implements ContextualDetector {
       modelBaseUrl: "/models/",
       wasmBaseUrl: "/runtime/",
     },
+    private readonly onProgress?: BrowserDetectorOptions["onProgress"],
   ) {
     worker.addEventListener("message", this.handleMessage);
     worker.onerror = this.handleWorkerError;
@@ -115,6 +119,10 @@ export class BrowserDetectorClient implements ContextualDetector {
     const response = event.data;
     const pending = this.pending.get(response.id);
     if (!pending) return;
+    if (response.kind === "progress") {
+      this.onProgress?.({ loaded: response.loaded, total: response.total });
+      return;
+    }
     this.pending.delete(response.id);
 
     if (response.kind === "error") {
@@ -143,18 +151,20 @@ export class BrowserDetectorClient implements ContextualDetector {
 export function createBrowserDetector(
   options: BrowserDetectorOptions,
 ): BrowserDetectorClient {
+  if (options.model === "full" && !options.fullModelBaseUrl) throw new Error("Full model assets must be configured explicitly.");
   const base = new URL(
     options.assetBaseUrl,
     globalThis.document?.baseURI ?? globalThis.location?.href,
   );
   if (!base.pathname.endsWith("/")) base.pathname += "/";
-  // A distinct worker URL prevents legacy clients receiving the v2 entity schema.
-  const worker = new Worker(new URL("worker-v2.js", base).href, {
+  // Use a distinct worker URL for the optional-model protocol.
+  const worker = new Worker(new URL("worker-v3.js", base).href, {
     type: "module",
-    name: "magpii-masker-mini",
+    name: `magpii-masker-${options.model ?? "mini"}`,
   });
   return new BrowserDetectorClient(worker, {
-    modelBaseUrl: new URL("models/", base).href,
+    model: options.model,
+    modelBaseUrl: options.model === "full" ? new URL(options.fullModelBaseUrl!, globalThis.document?.baseURI ?? globalThis.location.href).href : new URL("models/", base).href,
     wasmBaseUrl: new URL("runtime/", base).href,
-  });
+  }, options.onProgress);
 }

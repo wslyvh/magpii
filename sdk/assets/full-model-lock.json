@@ -1,0 +1,32 @@
+{
+  "model": "divergentlabs/masker",
+  "revision": "a207f14a31c78d935a9a1219be8dc7a1a82b0ece",
+  "license": "Apache-2.0",
+  "export": "experimental Full v2 INT4; block32 symmetric MatMul+Gather; FP32 computation",
+  "toolchain": {
+    "torch": "2.10.0+cpu",
+    "transformers": "4.57.6",
+    "tokenizers": "0.22.2",
+    "onnx": "1.23.2",
+    "onnxruntime": "1.30.0"
+  },
+  "recipeSha256": "bf71e7189321c0a5d935234e5c04554e1e430739e62c573942890e0a4ff8001c",
+  "files": {
+    "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "NOTICE": "d3a3da3d71db043859c146498a34a1e23166b8307440b74105d775adb8d88f46",
+    "config.json": "b36162a14970e8dc31f8f45fc9c09a3c657b5f309163379b028ac615b257a5e9",
+    "onnx/full-int4.onnx": "8303f93e6a5c80e9715af1057742b66e34a04a5f4f049c9e50166ccd715b7c2c",
+    "onnx/full-int4.onnx.data": "50a51293984eb9c658543ea3e2ed8dff1c87042f6413bf4a328d1c2f2c27a024",
+    "tokenizer.json": "8d5a786a62a72797fcd2f23663c3f8665bc81e6f10043004c66490810b3d0d82",
+    "tokenizer_config.json": "55fbc7b86c6bf6c9c4cd96b77845bf19e5d2370c652744bd9e5e087738c9a76b"
+  },
+  "sizes": {
+    "LICENSE": 11358,
+    "NOTICE": 395,
+    "config.json": 3098,
+    "onnx/full-int4.onnx": 992600,
+    "onnx/full-int4.onnx.data": 232275168,
+    "tokenizer.json": 16335516,
+    "tokenizer_config.json": 19705
+  }
+}

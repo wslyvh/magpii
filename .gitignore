@@ -8,3 +8,7 @@ playwright-report/
 /sdk/assets/browser/
 /extension/public/magpii/
 /extension/store/*.zip
+
+/sdk/models/masker-full/
+/sdk/models/masker-full-source/
+/sdk/full-model-assets.zip

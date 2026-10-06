@@ -1,9 +1,11 @@
+import { createReadStream } from "node:fs";
+import { stat } from "node:fs/promises";
 import { createServer } from "node:http";
-import { readFile } from "node:fs/promises";
 import { resolve, extname } from "node:path";
 import { build } from "esbuild";
 
 const assets = resolve("assets/browser");
+const fullAssets = resolve("models/masker-full");
 const fixture = resolve("test-results/fixture.js");
 await build({
   entryPoints: ["tests/browser/fixture.js"],
@@ -30,20 +32,22 @@ createServer(async (request, response) => {
       return;
     }
     const file =
-      path === "/fixture.js"
-        ? fixture
+      path === "/fixture.js" ? fixture
+        : path.startsWith("/full/") ? resolve(fullAssets, path.slice("/full/".length))
         : resolve(assets, path.slice("/magpii/".length));
     if (
       file !== fixture &&
-      (!path.startsWith("/magpii/") || !file.startsWith(`${assets}/`))
+      (!(path.startsWith("/magpii/") && file.startsWith(`${assets}/`)) && !(path.startsWith("/full/") && file.startsWith(`${fullAssets}/`)))
     ) {
       response.writeHead(404).end();
       return;
     }
+    const size = (await stat(file)).size;
     response.writeHead(200, {
+      "Content-Length": size,
       "Content-Type": types[extname(file)] ?? "application/octet-stream",
     });
-    response.end(await readFile(file));
+    createReadStream(file).pipe(response);
   } catch {
     if (!response.headersSent) response.writeHead(404);
     response.end();

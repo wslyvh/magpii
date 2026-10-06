@@ -11,7 +11,7 @@ const result = await redactText("Email jan@example.nl");
 console.log(result.redactedText); // Email [EMAIL]
 ```
 
-The core detects emails, phone numbers, HTTP(S) URLs, Dutch BSNs, IBANs, and payment cards with structured rules. A contextual detector supplies names, address components, generic government IDs, dates, and ages. Model predictions for structured categories are ignored by the combined SDK. A generic government ID is not reclassified as a BSN.
+The core detects emails, phone numbers, HTTP(S) URLs, Dutch BSNs, IBANs, and payment cards with structured rules. A contextual detector supplies names, address components, generic government IDs, dates, and ages. Model and rule candidates are combined through hybrid detection. Model candidates for structured categories must pass the SDK validators. Identical rule matches take precedence. Numeric candidates are rejected when their text is a valid date, time range, IP address or explicitly labelled invoice/order/reference number. Neither source has to agree for a valid detection to survive. A generic government ID is not reclassified as a BSN.
 
 ### Entities and selection
 
@@ -38,7 +38,7 @@ Review interfaces can use `detectText` and `maskText` separately. Pass only sele
 
 ## Browser detection
 
-The package includes a compiled worker, model, and WASM runtime. Copy them into a static directory:
+The package includes a compiled worker, model, and WASM runtime. Copy them into a dedicated static directory. The installer replaces generated model/runtime files:
 
 ```bash
 magpii-assets --out public/magpii
@@ -59,9 +59,36 @@ try {
 
 Host assets on the application's own origin. Detection runs locally and can miss personal information, so review before sharing. No remote inference or asset fallback is used.
 
+Mini model files are checksum-verified and saved in browser storage for later visits when storage is available. The model still needs to be loaded into memory each visit. Browser storage can be cleared or evicted, and unavailable storage does not prevent detection.
+
 The pinned Tokenizers.js implementation tokenizes once. Long text uses overlapping windows of the original token IDs, bounded by the model's context limit. Normalized token surfaces are aligned back to original grapheme boundaries and UTF-16 offsets. Unsupported alignment rejects the operation instead of returning guessed positions.
 
-`@intheopen/magpii/inference` exports shared BIO/BIOES decoding, token windows, contextual filtering, and the Masker tokenizer/runtime interface for other local integrations. Model revisions and asset checksums are in the exported `model-lock.json`.
+`@intheopen/magpii/inference` exports shared BIO/BIOES decoding, token windows, canonical model candidates, and the Masker tokenizer/runtime interface for other local integrations. Model revisions and asset checksums are in the exported `model-lock.json`.
+
+### Optional Full model demo
+
+Version 0.2.1 adds an experimental Full v2 INT4 backend. The standard SDK archive and extension still include only Mini. Full is a separate download of about 250 MB including its tokenizer. It uses FP32 computation with selected MatMul and Gather weights stored in INT4. It has lower coverage than the unquantized reference and can still miss personal information.
+
+Create a Python environment and install `scripts/requirements-export.txt`, then run:
+
+```bash
+python scripts/export-full.py
+```
+
+The recipe downloads and verifies the pinned Full source weights, exports dynamic-length ONNX, quantizes without calibration data, records the toolchain/recipe/checksums in `assets/full-model-lock.json`, and creates `full-model-assets.zip`. Unpack that separate bundle on a static asset host, preserving the `onnx/` directory and external-data filename. Full assets stay outside the standard SDK package and application build.
+
+The static host must allow CORS if hosted on another origin. Text is never sent to the asset host. The worker and WASM runtime stay on the application's own origin.
+
+```ts
+const detector = createBrowserDetector({
+  assetBaseUrl: "/magpii/",
+  model: "full",
+  fullModelBaseUrl: "/full-model/",
+  onProgress: ({ loaded, total }) => console.log(loaded / total),
+});
+```
+
+Initialize Full only after an explicit user action. Call `dispose()` to cancel downloading/inference and release the worker. Full assets are checksum-verified and saved through the browser Cache API when storage allows it. `isFullModelCached(baseUrl)` checks availability and `clearFullModelCache()` removes saved Full assets. Browser storage can be evicted; caching failures do not prevent a session from running. Full can use substantially more memory than its download size, so test target devices.
 
 ### Upgrading from 0.1
 

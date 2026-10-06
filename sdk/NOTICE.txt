@@ -6,7 +6,14 @@ divergentlabs/masker-mini, revision beb7235d454aa4488b6ee1cd47f417caa12a6d15.
 Apache-2.0; the model's LICENSE and NOTICE are included with its assets.
 Model source: https://huggingface.co/divergentlabs/masker-mini
 Magpii normalizes the token labels to its independent entity vocabulary.
-Model weights and tokenizer assets are unchanged.
+Mini weights and tokenizer assets are unchanged.
+
+Optional Full browser inference uses an experimental INT4 export of Masker Full v2,
+divergentlabs/masker, revision a207f14a31c78d935a9a1219be8dc7a1a82b0ece.
+Apache-2.0; its LICENSE and NOTICE are included in the separate Full asset bundle.
+Model source: https://huggingface.co/divergentlabs/masker
+Magpii exports and quantizes selected weights; the full vocabulary is retained.
+The source checkpoint, export recipe, toolchain and derived assets are pinned.
 
 Tokenizers.js: Hugging Face, Apache-2.0.
 ONNX Runtime: Microsoft Corporation, MIT.

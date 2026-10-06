@@ -16,10 +16,10 @@ describe("shared model decoding", () => {
     expect(decodeModelSpans([[0, 3], [4, 7]], ["B-PERSON", "B-LOCATION"]).map(d => d.type)).toEqual(["PERSON", "ADDRESS"]);
   });
 
-  it("keeps native labels in solo output and filters structured labels from contextual output", () => {
+  it("keeps known native categories available for SDK validation", () => {
     const spans = decodeModelSpans([[0, 3], [4, 7], [8, 11], [12, 15]], ["S-GOVERNMENT_ID", "S-AGE", "S-EMAIL", "S-PASSWORD"]);
     expect(spans.map(d => d.type)).toEqual(["GOVERNMENT_ID", "AGE", "EMAIL", "PASSWORD"]);
-    expect(contextualSpans("123 456 789 012", spans).map(d => d.type)).toEqual(["GOVERNMENT_ID", "AGE"]);
+    expect(contextualSpans("123 456 789 012", spans).map(d => d.type)).toEqual(["GOVERNMENT_ID", "AGE", "EMAIL"]);
     expect(() => decodeModelSpans([[0, 1]], [])).toThrow(/length mismatch/);
   });
 

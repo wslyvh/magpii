@@ -1,6 +1,6 @@
 {
   "name": "@intheopen/magpii",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Local personal data detection and redaction, independent of the interface.",
   "license": "MIT",
   "type": "module",
@@ -18,7 +18,8 @@
     "./inference": {
       "types": "./dist/inference.d.ts",
       "default": "./dist/inference.js"
-    }
+    },
+    "./full-model-lock.json": "./assets/full-model-lock.json"
   },
   "files": [
     "dist",
@@ -34,7 +35,8 @@
     "prepack": "npm run build",
     "test:browser": "npm run build && playwright test",
     "model:fetch": "node scripts/fetch-model.mjs",
-    "model:verify": "node scripts/fetch-model.mjs --verify"
+    "model:verify": "node scripts/fetch-model.mjs --verify",
+    "model:export-full": "python3 scripts/export-full.py"
   },
   "dependencies": {
     "libphonenumber-js": "1.13.13",

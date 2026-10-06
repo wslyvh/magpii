@@ -108,3 +108,28 @@ describe("combined structured detection", () => {
     }
   });
 });
+
+
+describe("numeric identifier context", () => {
+  it.each([
+    "We zijn geopend van 09.00 - 10.00.",
+    "Opening hours: 08:30–17:45.",
+    "The server address is 10.2.0.0.",
+    "Server: 192.168.1.100.",
+    "Geboortedatum: 31-01-2001.",
+    "Date: 2001/01/31.",
+    "De afspraak is op 2020-03-04.",
+    "Invoice number: 123456782",
+    "Factuurnummer: 123456782",
+  ])("does not classify non-identifiers in %s as phone or BSN", text => {
+    expect(detectPhones(text)).toEqual([]);
+    expect(detectBsns(text)).toEqual([]);
+  });
+
+  it("keeps valid identifiers next to unrelated dates, IPs and invoice labels", () => {
+    const text = "Invoice number: 123456782. Call +31 6 12345678 on 31-01-2001. Server 10.2.0.0. BSN: 123456782.";
+    expect(values(text, detectPhones(text))).toEqual(["+31 6 12345678"]);
+    expect(values(text, detectBsns(text))).toEqual(["123456782"]);
+    expect(values("123456782", detectBsns("123456782"))).toEqual(["123456782"]);
+  });
+});

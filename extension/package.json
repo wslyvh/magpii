@@ -15,7 +15,7 @@
     "predev": "magpii-assets --out public/magpii"
   },
   "dependencies": {
-    "@intheopen/magpii": "0.2.0"
+    "@intheopen/magpii": "0.2.1"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",

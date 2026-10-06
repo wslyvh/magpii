@@ -10,7 +10,10 @@ if (args.length !== 2 || args[0] !== "--out" || !args[1]) {
 }
 const source = fileURLToPath(new URL("../assets/browser/", import.meta.url));
 const target = resolve(args[1]);
-// Runtime files are generated SDK assets; refresh them to remove superseded builds.
-await rm(resolve(target, "runtime"), { recursive: true, force: true });
+// Replace generated runtime/models and remove the superseded worker.
+// Optional Full weights are hosted separately and never copied into a site build.
+for (const name of ["runtime", "models", "worker-v2.js"]) {
+  await rm(resolve(target, name), { recursive: true, force: true });
+}
 await cp(source, target, { recursive: true });
 console.log(`Magpii browser assets installed in ${args[1]}.`);

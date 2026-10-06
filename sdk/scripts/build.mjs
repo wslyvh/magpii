@@ -32,7 +32,7 @@ await mkdir(output, { recursive: true });
 await build({
   absWorkingDir: root,
   entryPoints: ["src/inference/masker.worker.ts"],
-  outfile: resolve(output, "worker-v2.js"),
+  outfile: resolve(output, "worker-v3.js"),
   bundle: true,
   platform: "browser",
   format: "esm",

@@ -1,5 +1,6 @@
 import { findPhoneNumbersInText } from "libphonenumber-js";
 import type { Detection, DetectionType } from "./types.js";
+import { hasIdentifierContext } from "./identifierContext.js";
 
 function matchDetection(
   start: number,
@@ -20,7 +21,8 @@ export function detectEmails(text: string): Detection[] {
 export function detectPhones(text: string): Detection[] {
   return findPhoneNumbersInText(text, "NL")
     .filter(({ number }) => number.isValid())
-    .map(({ startsAt, endsAt }) => matchDetection(startsAt, endsAt, "PHONE"));
+    .map(({ startsAt, endsAt }) => matchDetection(startsAt, endsAt, "PHONE"))
+    .filter(detection => hasIdentifierContext(text, detection));
 }
 
 function passesDutchElevenTest(value: string): boolean {
@@ -42,7 +44,8 @@ export function detectBsns(text: string): Detection[] {
     const normalized = match[0].replace(/\D/g, "");
     if (
       (normalized.length === 8 || normalized.length === 9) &&
-      passesDutchElevenTest(normalized)
+      passesDutchElevenTest(normalized) &&
+      hasIdentifierContext(text, { start: match.index, end: match.index + match[0].length, type: "BSN" })
     ) {
       detections.push(
         matchDetection(match.index, match.index + match[0].length, "BSN"),

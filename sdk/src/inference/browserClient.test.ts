@@ -133,6 +133,20 @@ describe("BrowserDetectorClient", () => {
   });
 });
 
+describe("download progress", () => {
+  it("reports progress without resolving or losing the pending warmup", async () => {
+    const worker = new FakeWorker();
+    const progress = vi.fn();
+    const client = new BrowserDetectorClient(worker, { model: "full", modelBaseUrl: "/full/", wasmBaseUrl: "/runtime/" }, progress);
+    const pending = client.warmup();
+    worker.emit({ kind: "progress", id: 1, loaded: 10, total: 100 });
+    expect(progress).toHaveBeenCalledWith({ loaded: 10, total: 100 });
+    worker.emit({ kind: "ready", id: 1 });
+    await expect(pending).resolves.toBeUndefined();
+    client.dispose();
+  });
+});
+
 describe("createBrowserDetector", () => {
   afterEach(() => vi.unstubAllGlobals());
 
@@ -151,7 +165,7 @@ describe("createBrowserDetector", () => {
       });
       vi.stubGlobal("Worker", WorkerConstructor);
       const detector = createBrowserDetector({ assetBaseUrl });
-      expect(WorkerConstructor).toHaveBeenCalledWith(`${base}worker-v2.js`, {
+      expect(WorkerConstructor).toHaveBeenCalledWith(`${base}worker-v3.js`, {
         type: "module",
         name: "magpii-masker-mini",
       });

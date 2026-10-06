@@ -1,6 +1,7 @@
 import type { Detection } from "../core/types.js";
 
 export type BrowserAssets = {
+  model?: "mini" | "full";
   modelBaseUrl: string;
   wasmBaseUrl: string;
 };
@@ -21,6 +22,7 @@ export type DetectRequest = {
 export type WorkerRequest = WarmupRequest | DetectRequest;
 
 export type WorkerResponse =
+  | { kind: "progress"; id: number; loaded: number; total: number }
   | { kind: "ready"; id: number }
   | { kind: "result"; id: number; detections: Detection[] }
   | { kind: "error"; id: number; message: string };

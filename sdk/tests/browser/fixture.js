@@ -1,4 +1,4 @@
 import { redactText } from "../../dist/index.js";
-import { createBrowserDetector } from "../../dist/browser.js";
+import { createBrowserDetector, isFullModelCached, clearFullModelCache } from "../../dist/browser.js";
 
-window.magpii = { redactText, createBrowserDetector };
+window.magpii = { redactText, createBrowserDetector, isFullModelCached, clearFullModelCache };
